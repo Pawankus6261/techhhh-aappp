@@ -78,8 +78,19 @@ export default function AdminDashboard() {
     return `${m}m ${s}s`;
   };
 
-  const disqualifyTeam = (code: string) => {
+  const disqualifyTeam = async (code: string) => {
     if (!window.confirm(`Disqualify squad with code ${code}?`)) return;
+    
+    // Broadcast real-time flag to KV
+    try {
+      await fetch('/api/admin/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamCode: code, status: 'disqualified' })
+      });
+    } catch (e) {
+      console.error('Failed to update live DB', e);
+    }
     
     const logs = localStorage.getItem('tech_escape_logs');
     if (logs) {
@@ -96,9 +107,20 @@ export default function AdminDashboard() {
     loadData();
   };
 
-  const reviveTeam = (code: string) => {
+  const reviveTeam = async (code: string) => {
     if (!window.confirm(`Revive squad with code ${code}?`)) return;
     
+    // Broadcast real-time flag to KV
+    try {
+      await fetch('/api/admin/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamCode: code, status: 'active' })
+      });
+    } catch (e) {
+      console.error('Failed to update live DB', e);
+    }
+
     const logs = localStorage.getItem('tech_escape_logs');
     if (logs) {
       let parsedLogs: Team[] = JSON.parse(logs);

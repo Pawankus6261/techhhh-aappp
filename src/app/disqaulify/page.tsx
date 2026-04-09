@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Skull } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -6,6 +7,31 @@ import Button from '@/components/Button';
 
 export default function DisqualifyPage() {
   const router = useRouter();
+
+  useEffect(() => {
+    const saved = localStorage.getItem('tech_escape_team');
+    if (!saved) return;
+    const team = JSON.parse(saved);
+    
+    const checkLiveStatus = async () => {
+      try {
+        const res = await fetch(`/api/status?code=${team.code}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === 'active' && team.status === 'disqualified') {
+             const updated = { ...team, status: 'active' as const, endTime: undefined };
+             localStorage.setItem('tech_escape_team', JSON.stringify(updated));
+             router.push('/game');
+          }
+        }
+      } catch (err) {
+        // network issue, silently ignore
+      }
+    };
+    
+    const interval = setInterval(checkLiveStatus, 5000);
+    return () => clearInterval(interval);
+  }, [router]);
 
   const handleRestart = () => {
     router.push('/');

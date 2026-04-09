@@ -104,6 +104,29 @@ export default function GamePage() {
 
   useEffect(() => { initializeGame(); }, [initializeGame]);
 
+  // ✅ Live Polling for Admin Actions
+  useEffect(() => {
+    if (!team) return;
+    const checkLiveStatus = async () => {
+      try {
+        const res = await fetch(`/api/status?code=${team.code}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === 'disqualified' && team.status !== 'disqualified') {
+             const updated = { ...team, status: 'disqualified' as const, endTime: Date.now() };
+             setTeam(updated);
+             localStorage.setItem('tech_escape_team', JSON.stringify(updated));
+             router.push('/disqaulify');
+          }
+        }
+      } catch (err) {
+        // Silently ignore network polling errors
+      }
+    };
+    const interval = setInterval(checkLiveStatus, 5000);
+    return () => clearInterval(interval);
+  }, [team, router]);
+
   const handleOpenModal = (task: Task) => {
     setActiveTask(task);
     setAnswerInput('');
