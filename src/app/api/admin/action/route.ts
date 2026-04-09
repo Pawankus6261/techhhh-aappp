@@ -22,3 +22,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to update KV' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const teamCode = searchParams.get('teamCode');
+    const wipe = searchParams.get('wipe');
+
+    if (wipe === 'true') {
+      await kv.del('live_game_teams');
+      return NextResponse.json({ success: true, wiped: true });
+    }
+
+    if (!teamCode) {
+      return NextResponse.json({ error: 'Missing teamCode to delete' }, { status: 400 });
+    }
+
+    await kv.hdel('live_game_teams', teamCode);
+    return NextResponse.json({ success: true, deletedCode: teamCode });
+
+  } catch (error) {
+    console.error('KV Delete Error:', error);
+    return NextResponse.json({ error: 'Failed to delete KV data' }, { status: 500 });
+  }
+}

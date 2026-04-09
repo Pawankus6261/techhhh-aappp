@@ -67,11 +67,17 @@ export default function AdminDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleWipe = () => {
-    if (window.confirm('WARNING: THIS WILL WIPE ALL LOCAL STORAGE HISTORY & CURRENT TEAMS! PROCEED?')) {
+  const handleWipe = async () => {
+    if (window.confirm('WARNING: THIS WILL WIPE THE ENTIRE LIVE DATABASE! PROCEED?')) {
+      try {
+        await fetch('/api/admin/action?wipe=true', { method: 'DELETE' });
+      } catch (e) {
+        console.error('Failed to wipe DB', e);
+      }
       localStorage.removeItem('tech_escape_team');
       localStorage.removeItem('tech_escape_logs');
-      loadData();
+      setHistory([]);
+      setActiveTeam(null);
     }
   };
 
@@ -131,9 +137,15 @@ export default function AdminDashboard() {
     }
   };
 
-  const deleteTeam = (code: string) => {
-    if (!window.confirm(`Permanently delete squad ${code}? (Will only hide from UI unless backend deleted)`)) return;
+  const deleteTeam = async (code: string) => {
+    if (!window.confirm(`Permanently delete squad ${code} from Live DB?`)) return;
     
+    try {
+      await fetch(`/api/admin/action?teamCode=${code}`, { method: 'DELETE' });
+    } catch (e) {
+      console.error('Failed to delete team', e);
+    }
+
     setHistory(prev => prev.filter(t => t.code !== code));
     
     if (activeTeam && activeTeam.code === code) {
