@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "title": "Initialization: Binary Translater",
+    "question": "The outpost door is locked with a legacy protocol. Decrypt this binary sequence to find the passcode: 01001111 01010000 01000101 01001110",
+    "answer": "OPEN"
+  },
+  {
+    "id": 2,
+    "title": "Port Scanning Protocol",
+    "question": "We need to transfer the data, but the firewall is active. What is the standard default port number for secure shell (SSH) connections?",
+    "answer": "22"
+  },
+  {
+    "id": 3,
+    "title": "Data Encoding: Base64 Decrypt",
+    "question": "An intercepted packet contains the string: 'SEFDS0VE'. Decode this Base64 string to find the admin's secret key.",
+    "answer": "HACKED"
+  },
+  {
+    "id": 4,
+    "title": "Network Routing: Localhost Loopback",
+    "question": "A rogue AI is trying to ping servers externally. We need to trap it in a loop by pointing its DNS to the standard localhost IPv4 loopback address. What is the exact IP address?",
+    "answer": "127.0.0.1"
+  },
+  {
+    "id": 5,
+    "title": "Cryptography: Caesar Shift",
+    "question": "We found a cipher left by the Black Hat group: 'WKH SDVVZRUG LV FRPSURPLVHG'. Decrypt it using a standard Caesar cipher shift of 3 backwards (ROT-3). What is the first word of the decrypted message?",
+    "answer": "THE"
+  },
+  {
+    "id": 6,
+    "title": "Database Injection",
+    "question": "Someone tried to bypass the login form using a classic SQL injection payload. Fill in the missing character for this timeless payload: ' OR 1=1 --",
+    "answer": "'"
+  },
+  {
+    "id": 7,
+    "title": "Mainframe Override",
+    "question": "To finalize the system override, you must invoke the superuser command in Linux. What is the two-letter command used to execute commands with elevated root privileges?",
+    "answer": "su"
+  }
+]

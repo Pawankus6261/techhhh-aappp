@@ -1,0 +1,9 @@
+[
+    {
+        "id": 1,
+        "status": "running",
+        "start_time": "2026-04-08 20:14:26.591332+00",
+        "total_duration": 3600,
+        "paused_at": null
+    }
+]
