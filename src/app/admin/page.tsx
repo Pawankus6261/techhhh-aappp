@@ -29,28 +29,33 @@ export default function AdminDashboard() {
     }
   };
 
-  const loadData = () => {
+  const loadData = async () => {
     setLoading(true);
     const active = localStorage.getItem('tech_escape_team');
     setActiveTeam(active ? JSON.parse(active) : null);
 
-    const logs = localStorage.getItem('tech_escape_logs');
-    if (logs) {
-      const parsedLogs: Team[] = JSON.parse(logs);
-      
-      // Calculate duration and sort
-      parsedLogs.sort((a, b) => {
-        // Sort by Level Descending
-        if (b.level !== a.level) return b.level - a.level;
+    try {
+      const res = await fetch('/api/admin/data');
+      if (res.ok) {
+        const data = await res.json();
+        const parsedLogs: Team[] = data.teams || [];
         
-        // Sort by Fastest Time Ascending if levels are equal
-        const timeA = (a.endTime || Date.now()) - a.startTime;
-        const timeB = (b.endTime || Date.now()) - b.startTime;
-        return timeA - timeB;
-      });
-      setHistory(parsedLogs);
-    } else {
-      setHistory([]);
+        // Calculate duration and sort
+        parsedLogs.sort((a, b) => {
+          // Sort by Level Descending
+          if (b.level !== a.level) return b.level - a.level;
+          
+          // Sort by Fastest Time Ascending if levels are equal
+          const timeA = (a.endTime || Date.now()) - a.startTime;
+          const timeB = (b.endTime || Date.now()) - b.startTime;
+          return timeA - timeB;
+        });
+        setHistory(parsedLogs);
+      } else {
+        setHistory([]);
+      }
+    } catch (e) {
+      console.error('Failed to fetch real-time admin data', e);
     }
     setLoading(false);
   };
@@ -92,19 +97,14 @@ export default function AdminDashboard() {
       console.error('Failed to update live DB', e);
     }
     
-    const logs = localStorage.getItem('tech_escape_logs');
-    if (logs) {
-      let parsedLogs: Team[] = JSON.parse(logs);
-      parsedLogs = parsedLogs.map(t => t.code === code ? { ...t, status: 'disqualified', endTime: Date.now() } : t);
-      localStorage.setItem('tech_escape_logs', JSON.stringify(parsedLogs));
-    }
+    // Optimistic UI Update
+    setHistory(prev => prev.map(t => t.code === code ? { ...t, status: 'disqualified', endTime: Date.now() } : t));
     
     if (activeTeam && activeTeam.code === code) {
        const updated = { ...activeTeam, status: 'disqualified' as const, endTime: Date.now() };
        localStorage.setItem('tech_escape_team', JSON.stringify(updated));
        setActiveTeam(updated);
     }
-    loadData();
   };
 
   const reviveTeam = async (code: string) => {
@@ -121,36 +121,25 @@ export default function AdminDashboard() {
       console.error('Failed to update live DB', e);
     }
 
-    const logs = localStorage.getItem('tech_escape_logs');
-    if (logs) {
-      let parsedLogs: Team[] = JSON.parse(logs);
-      parsedLogs = parsedLogs.map(t => t.code === code ? { ...t, status: 'active', endTime: undefined } : t);
-      localStorage.setItem('tech_escape_logs', JSON.stringify(parsedLogs));
-    }
+    // Optimistic UI Update
+    setHistory(prev => prev.map(t => t.code === code ? { ...t, status: 'active', endTime: undefined } : t));
     
     if (activeTeam && activeTeam.code === code) {
        const updated = { ...activeTeam, status: 'active' as const, endTime: undefined };
        localStorage.setItem('tech_escape_team', JSON.stringify(updated));
        setActiveTeam(updated);
     }
-    loadData();
   };
 
   const deleteTeam = (code: string) => {
-    if (!window.confirm(`Permanently delete squad ${code}?`)) return;
+    if (!window.confirm(`Permanently delete squad ${code}? (Will only hide from UI unless backend deleted)`)) return;
     
-    const logs = localStorage.getItem('tech_escape_logs');
-    if (logs) {
-      let parsedLogs: Team[] = JSON.parse(logs);
-      parsedLogs = parsedLogs.filter(t => t.code !== code);
-      localStorage.setItem('tech_escape_logs', JSON.stringify(parsedLogs));
-    }
+    setHistory(prev => prev.filter(t => t.code !== code));
     
     if (activeTeam && activeTeam.code === code) {
        localStorage.removeItem('tech_escape_team');
        setActiveTeam(null);
     }
-    loadData();
   };
 
   if (!isAdmin) {

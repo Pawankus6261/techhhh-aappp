@@ -8,7 +8,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing teamCode or status' }, { status: 400 });
     }
     
-    await kv.set(`team_status_${teamCode}`, status);
+    // Attempt to merge with existing data
+    const existingStr = await kv.hget('live_game_teams', teamCode) as any;
+    const existing = existingStr || { code: teamCode };
+    
+    const updatedTeam = { ...existing, status };
+    
+    await kv.hset('live_game_teams', { [teamCode]: updatedTeam });
     
     return NextResponse.json({ success: true, teamCode, status });
   } catch (error) {

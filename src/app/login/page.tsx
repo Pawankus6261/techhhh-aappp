@@ -71,6 +71,13 @@ export default function LoginPage() {
       // Set Active Session
       localStorage.setItem('tech_escape_team', JSON.stringify(newTeam));
       
+      // ✅ Sync to KV Live Server
+      fetch('/api/team/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newTeam)
+      }).catch(e => console.error('Failed to sync team login', e));
+      
       // Add to Global Logs
       const historyItem = localStorage.getItem('tech_escape_logs');
       const historyList: Team[] = historyItem ? JSON.parse(historyItem) : [];

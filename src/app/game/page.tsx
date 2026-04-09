@@ -167,6 +167,14 @@ export default function GamePage() {
       };
       setTeam(updated);
       localStorage.setItem('tech_escape_team', JSON.stringify(updated));
+      
+      // ✅ Sync to KV Live Server
+      fetch('/api/team/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      }).catch(e => console.error('Failed to sync team progress', e));
+      
       setModalOpen(false);
       setAnswerInput('');
       setSelectedOption(null);
