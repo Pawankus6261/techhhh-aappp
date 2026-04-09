@@ -7,6 +7,7 @@ export interface Task {
   difficulty?: string;
   category?: string;
   hints?: string; // It's stored as a stringified array in the JSON
+  options?: string | string[];
 }
 
 export interface Team {
