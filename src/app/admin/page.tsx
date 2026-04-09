@@ -18,8 +18,8 @@ export default function AdminDashboard() {
 
   const checkAdmin = (e: React.FormEvent) => {
     e.preventDefault();
-    const validUser = process.env.NEXT_PUBLIC_ADMIN_USERNAME;
-    const validPass = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+    const validUser = process.env.NEXT_PUBLIC_ADMIN_USERNAME || 'admin';
+    const validPass = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'krishna_12';
     if (adminUser === validUser && adminPass === validPass) {
       setIsAdmin(true);
       sessionStorage.setItem('tech_escape_admin', 'true');
